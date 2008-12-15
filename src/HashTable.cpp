@@ -51,9 +51,9 @@ void HashTable::addElement(int key, int index) {
 
 }
 
-int HashTable::getElement(int key) {
-	// TODO: getElement
-	return 0;
+// TODO: it should not return the hashElement array...it's not incapsulated !
+hashElement* HashTable::getElement(int key) {
+	return hashTable[key%hashTableSize];
 }
 
 void HashTable::elaborateStats() {

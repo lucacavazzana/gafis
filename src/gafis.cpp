@@ -92,7 +92,27 @@ int main(int argc, char **argv) {
 	{
 		htable.addElement(vec1[i]->getHash(), i);
 	}
-	htable.elaborateStats();
+
+	hashElement *temp;
+	int foundedElements = 0;
+	int confronti=0;
+	for(int j=0; j<vec2.size(); j++)
+	{
+		temp = htable.getElement(vec2[j]->getHash());
+		while(temp->index!=-1) {
+			if(!vec1[temp->index]->compare(vec2[j])) {
+				//cout << "found " << endl;
+				foundedElements++;
+			}
+			confronti++;
+			temp = temp->nextRecord;
+		}
+	}
+
+	cout << "Founded elements: " << foundedElements << endl;
+	cout << "Confronti: " << confronti << endl;
+
+	//htable.elaborateStats();
 
 	logger->Log("That's all folks", 2);
 	return 0;
