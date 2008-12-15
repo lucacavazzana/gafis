@@ -64,13 +64,13 @@ void HashTable::elaborateStats() {
 		{
 			emptyCell++;
 		}
-		cout << "Hash[" << i << "] = " << hashTable[i]->index;
+		//cout << "Hash[" << i << "] = " << hashTable[i]->index;
 		hashElement *current = hashTable[i]->nextRecord;
 		while(current!=NULL) {
-			cout << ";" <<current->index;
+			//cout << ";" <<current->index;
 			current = current->nextRecord;
 		}
-		cout << endl;
+		//cout << endl;
 	}
 	cout << "Collisions: " << collision << endl;
 	cout << "Coverture: " << (float)(hashTableSize-emptyCell)*100.0f/(float)hashTableSize << "%" << endl;

@@ -112,7 +112,7 @@ int main(int argc, char **argv) {
 	cout << "Founded elements: " << foundedElements << endl;
 	cout << "Confronti: " << confronti << endl;
 
-	//htable.elaborateStats();
+	htable.elaborateStats();
 
 	logger->Log("That's all folks", 2);
 	return 0;
