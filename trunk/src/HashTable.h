@@ -18,7 +18,7 @@ public:
 	HashTable(int size);
 	virtual ~HashTable();
 	void addElement(int key, int index);
-	int getElement(int key);
+	hashElement* getElement(int key);
 	void elaborateStats();
 protected:
 	hashElement **hashTable;
