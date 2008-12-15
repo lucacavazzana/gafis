@@ -12,6 +12,7 @@
 #include <ImageDescriptor.h>
 #include <DescGenerator.h>
 #include <ColorDescGenerator.h>
+#include <HashTable.h>
 
 
 /* DEBUG_LVL = Livello di debug
@@ -63,8 +64,11 @@ int main(int argc, char **argv) {
 
 	// TODO: rewrite with pointer (reference) and use btree/hash function
 
+	/*
+	// COMPARE ONE BY ONE FUNCTION
+
 	int common_descriptors =0;
-	for(int i=0; i<vec1.size(); i++) {n
+	for(int i=0; i<vec1.size(); i++) {
 		cout << (float)i*100/vec1.size() << "% " << endl;
 		for(int j=0; j<vec2.size(); j++) {
 			if(!vec1[j]->compare(vec2[i])) {
@@ -74,6 +78,21 @@ int main(int argc, char **argv) {
 	}
 
 	cout << "Number common descriptor = " << common_descriptors << endl;
+
+	*/
+
+	// COMPARE WITH HASHING FUNCTION
+
+	HashTable htable = HashTable(vec1.size());
+
+	int collision = 0; 	// number of collisions founded (for statistics purpose)
+	int emptyCell = 0;	// number of empty cell of array
+
+	for(int i=0; i<vec1.size(); i++)	// Hashing first vector
+	{
+		htable.addElement(vec1[i]->getHash(), i);
+	}
+	htable.elaborateStats();
 
 	logger->Log("That's all folks", 2);
 	return 0;

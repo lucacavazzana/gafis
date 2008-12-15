@@ -34,6 +34,14 @@ vector<int> ImageDescriptor::getDescriptorVector() {
 	return descriptorVector;
 }
 
+int ImageDescriptor::getHash() {
+	int sum = 1;
+	for(int i=0; i<descriptorVector.size(); i++) {
+			sum += (descriptorVector[i]);
+	}
+	return sum;
+}
+
 float ImageDescriptor::compare(ImageDescriptor *x) {
 	float difference = 0;
 	vector<int> xDescriptors = x->getDescriptorVector();	// TODO: Using = mean that all data will be copied

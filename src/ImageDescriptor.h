@@ -21,6 +21,7 @@ public:
 	void setDescriptorVector(vector<int> inVector);
 	vector<int> getDescriptorVector();
 	float compare(ImageDescriptor *x);
+	int getHash();
 	int x;
 	int y;
 	double scale;
