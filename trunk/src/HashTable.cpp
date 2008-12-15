@@ -15,6 +15,7 @@ HashTable::HashTable(int size) {
 	hashTable = new hashElement*[hashTableSize];		// Allocating (istance heroic etekno) table size
 
 	for(int i=0; i<hashTableSize; i++) {	// Set all cells to -1
+		//hashTable[i] = NULL;
 		hashTable[i] = new hashElement;
 		hashTable[i]->index = -1;
 		hashTable[i]->nextRecord = NULL;
@@ -36,19 +37,22 @@ void HashTable::addElement(int key, int index) {
 
 	hashElement *current = hashTable[candidate];
 
+	// TODO: optimize this part: a new struct is created every add element...
+
 	while(current->index!=-1) {
 		collision++;
 		current = current->nextRecord;
 	}
-
-	current->nextRecord = new hashElement;
-	current = current->nextRecord;
 	current->index = index;
+	current->nextRecord = new hashElement;
+	current->nextRecord->index=-1;
+
 	elementsAdded++;
 
 }
 
 int HashTable::getElement(int key) {
+	// TODO: getElement
 	return 0;
 }
 
@@ -60,10 +64,10 @@ void HashTable::elaborateStats() {
 		{
 			emptyCell++;
 		}
-		cout << "Hash[" << i << "] = " << hashTable[i]->index << endl;
+		cout << "Hash[" << i << "] = " << hashTable[i]->index;
 		hashElement *current = hashTable[i]->nextRecord;
 		while(current!=NULL) {
-			cout << "LOL" <<current->index;
+			cout << ";" <<current->index;
 			current = current->nextRecord;
 		}
 		cout << endl;

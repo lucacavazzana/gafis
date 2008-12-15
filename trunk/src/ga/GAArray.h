@@ -21,8 +21,7 @@ The constructor will try to initialize to zero, but only if the type is right.
 We don't do any over-allocation, so resizing can be expensive.
 No error checking on the copy, so don't walk over end of array!
 
-TODO:
-  should do specialization for simple types that does memcpy rather than loop
+TODO: should do specialization for simple types that does memcpy rather than loop
 ---------------------------------------------------------------------------- */
 #ifndef _ga_arraytmpl_h_
 #define _ga_arraytmpl_h_
@@ -81,12 +80,12 @@ protected:
 };
 
 
-template <class T> int 
+template <class T> int
 operator==(const GAArray<T> & a, const GAArray<T> & b){
   if(a.size() != b.size()) return 0;
   return a.equal(b,0,0,a.sz);
 }
-template <class T> int 
+template <class T> int
 operator!=(const GAArray<T> & a, const GAArray<T> & b){
   if(a.size() != b.size()) return 1;
   return a.equal(b,0,0,a.sz) ? 0 : 1;
