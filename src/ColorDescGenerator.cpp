@@ -76,7 +76,7 @@ vector<ImageDescriptor*> ColorDescGenerator::textFileParser(string filepath) {
 	//cout << "asd1: " << DescriptorsDimensionality << endl;
 	//cout << "asd2: " << Ndescriptors;
 
-	tempArray.resize(Ndescriptors);
+	tempArray.resize(DescriptorsDimensionality);
 
 	logInstance->Log("Reading descriptors...", 3);
 
@@ -132,6 +132,7 @@ vector<ImageDescriptor*> ColorDescGenerator::textFileParser(string filepath) {
 		// cout << "asd: " << tempsum << endl;
 		// cout << "asd: " << list[j]->getDescriptorVector()[0] << endl;
 	}
+
 
 	//cout << "difference: " << list[0]->compare(list[1]) << endl;
 

@@ -99,14 +99,17 @@ int main(int argc, char **argv) {
 	for(int j=0; j<vec2.size(); j++)
 	{
 		temp = htable.getElement(vec2[j]->getHash());
+		//cout << "temp: " << temp;
 		while(temp->index!=-1) {
-			if(!vec1[temp->index]->compare(vec2[j])) {
-				//cout << "found " << endl;
+			cout << "temp->index: " << temp->index << endl;
+			if((vec1[temp->index]->compare(vec2[j]))<=0) {				//cout << "found " << endl;
 				foundedElements++;
+				cout << "Founded index: " << temp->index << " and " << j << endl;
 			}
 			confronti++;
 			temp = temp->nextRecord;
 		}
+		cout << "--------" << endl;
 	}
 
 	cout << "Founded elements: " << foundedElements << endl;
