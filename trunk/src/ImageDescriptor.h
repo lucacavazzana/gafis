@@ -22,6 +22,7 @@ public:
 	vector<int> getDescriptorVector();
 	float compare(ImageDescriptor *x);
 	int getHash();
+	void printDescVector();
 	int x;
 	int y;
 	double scale;

@@ -42,16 +42,23 @@ int ImageDescriptor::getHash() {
 	return sum;
 }
 
+void ImageDescriptor::printDescVector() {
+	for(int i=0; i<descriptorVector.size(); i++) {
+				cout << descriptorVector[i] << endl;
+	}
+}
+
 float ImageDescriptor::compare(ImageDescriptor *x) {
 	float difference = 0;
 	vector<int> xDescriptors = x->getDescriptorVector();	// TODO: Using = mean that all data will be copied
 															// it's not very good...
 	//cout << "Size: " << xDescriptors.size() << endl;
 	for(int i=0; i<descriptorVector.size(); i++) {
-		if(descriptorVector[i]!=xDescriptors[i]) return 1;
-		/*
-		difference += descriptorVector[i]-xDescriptors[i];
-		*/
+		//if(descriptorVector[i]!=xDescriptors[i]) return 1;
+
+		difference += abs(descriptorVector[i]-xDescriptors[i]);
+
 	}
-	return 0;
+	return difference/descriptorVector.size();
+	//return 0;
 }
