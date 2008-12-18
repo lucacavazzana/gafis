@@ -65,13 +65,14 @@ int main(int argc, char **argv) {
 	// TODO: rewrite with pointer (reference) and use btree/hash function
 
 	/*
+
 	// COMPARE ONE BY ONE FUNCTION
 
 	int common_descriptors =0;
-	for(int i=0; i<vec1.size(); i++) {
+	for(int i=3500; i<vec1.size(); i++) {
 		cout << (float)i*100/vec1.size() << "% " << endl;
 		for(int j=0; j<vec2.size(); j++) {
-			if(!vec1[j]->compare(vec2[i])) {
+			if(!vec1[i]->compare(vec2[j])) {
 				cout << "FOUNDED..." << common_descriptors++ << endl;
 			}
 		}
@@ -96,26 +97,31 @@ int main(int argc, char **argv) {
 	hashElement *temp;
 	int foundedElements = 0;
 	int confronti=0;
+
+	int searchTollerance = 60;
+
 	for(int j=0; j<vec2.size(); j++)
 	{
-		temp = htable.getElement(vec2[j]->getHash());
-		//cout << "temp: " << temp;
-		while(temp->index!=-1) {
-			cout << "temp->index: " << temp->index << endl;
-			if((vec1[temp->index]->compare(vec2[j]))<=0) {				//cout << "found " << endl;
-				foundedElements++;
-				cout << "Founded index: " << temp->index << " and " << j << endl;
+		for(int k=-searchTollerance;k<searchTollerance;k++) {
+			temp = htable.getElement(vec2[j]->getHash()+k);
+			//cout << "temp: " << temp;
+			while(temp->index!=-1) {
+				//cout << "temp->index: " << temp->index << endl;
+				if((vec1[temp->index]->compare(vec2[j]))<=searchTollerance) {				//cout << "found " << endl;
+					foundedElements++;
+					cout << "Founded: [" << vec1[temp->index]->x << ";"<< vec1[temp->index]->y <<"] and [" << vec2[j]->x << ";"<< vec2[j]->y << "]" << endl;
+				}
+				confronti++;
+				temp = temp->nextRecord;
 			}
-			confronti++;
-			temp = temp->nextRecord;
 		}
-		cout << "--------" << endl;
+		//cout << "--------" << endl;
 	}
 
 	cout << "Founded elements: " << foundedElements << endl;
 	cout << "Confronti: " << confronti << endl;
 
-	htable.elaborateStats();
+	//htable.elaborateStats();
 
 	logger->Log("That's all folks", 2);
 	return 0;
