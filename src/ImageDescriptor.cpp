@@ -59,6 +59,6 @@ float ImageDescriptor::compare(ImageDescriptor *x) {
 		difference += abs(descriptorVector[i]-xDescriptors[i]);
 
 	}
-	return difference/descriptorVector.size();
+	return difference;
 	//return 0;
 }
