@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <vector>
+#include <opencv/cxtypes.h>
 
 using namespace std;
 
@@ -23,8 +24,9 @@ public:
 	float compare(ImageDescriptor *x);
 	int getHash();
 	void printDescVector();
-	int x;
-	int y;
+	CvPoint position;
+	//int x;
+	//int y;
 	double scale;
 	double orientation;
 	double cornerness;

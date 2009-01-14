@@ -13,6 +13,12 @@
 #include <DescGenerator.h>
 #include <ColorDescGenerator.h>
 #include <HashTable.h>
+#include <PointCorrispondence.h>
+
+#include <opencv/cv.h>
+#include <opencv/highgui.h>
+#include <opencv/cxtypes.h>
+
 
 
 /* DEBUG_LVL = Livello di debug
@@ -45,6 +51,7 @@ void printHelp();
 
 int main(int argc, char **argv) {
 
+	cvLoadImage("asd.jpg");
 	logger = Logger::getInstance();
 	logger->setLevel(DEBUG_LVL);		// TODO: this parameter must be passed with command line args
 
@@ -94,11 +101,15 @@ int main(int argc, char **argv) {
 		htable.addElement(vec1[i]->getHash(), i);
 	}
 
+	logger->Log("HashTable complete", 2);
+
 	hashElement *temp;
 	int foundedElements = 0;
 	int confronti=0;
 
-	int searchTollerance = 60;
+	int searchTollerance = 500;
+	PointCorrispondence *founded;
+	founded = new PointCorrispondence[100];
 
 	for(int j=0; j<vec2.size(); j++)
 	{
@@ -108,8 +119,9 @@ int main(int argc, char **argv) {
 			while(temp->index!=-1) {
 				//cout << "temp->index: " << temp->index << endl;
 				if((vec1[temp->index]->compare(vec2[j]))<=searchTollerance) {				//cout << "found " << endl;
+					founded[foundedElements].setPoints(vec1[temp->index]->position, vec2[j]->position);
 					foundedElements++;
-					cout << "Founded: [" << vec1[temp->index]->x << ";"<< vec1[temp->index]->y <<"] and [" << vec2[j]->x << ";"<< vec2[j]->y << "]" << endl;
+					cout << "Founded: [" << vec1[temp->index]->position.x << ";"<< vec1[temp->index]->position.y <<"] and [" << vec2[j]->position.x << ";"<< vec2[j]->position.y << "]" << endl;
 				}
 				confronti++;
 				temp = temp->nextRecord;
@@ -120,6 +132,38 @@ int main(int argc, char **argv) {
 
 	cout << "Founded elements: " << foundedElements << endl;
 	cout << "Confronti: " << confronti << endl;
+
+
+	// COMPUTING FOUNDAMENTAL MATRIX
+	CvMat* points1;
+	CvMat* points2;
+	CvMat* status;
+	CvMat* fundamental_matrix;
+	points1 = cvCreateMat(1,8,CV_32FC2);
+	points2 = cvCreateMat(1,8,CV_32FC2);
+	status = cvCreateMat(1,8,CV_8UC1);
+	/* Fill the points here ... */
+	for( int i = 0; i < 8; i++ )
+	{
+	    points1->data.fl[i*2]   = founded[i].p1.x;
+	    points1->data.fl[i*2+1] = founded[i].p1.y;
+	    points2->data.fl[i*2]   = founded[i].p2.x;
+	    points2->data.fl[i*2+1] = founded[i].p2.y;
+	}
+	fundamental_matrix = cvCreateMat(3,3,CV_32FC1);
+	int fm_count = cvFindFundamentalMat( points1, points2,
+	                                     fundamental_matrix,
+	                                     CV_FM_8POINT,1.0,0.99,status);
+
+	cout << "fm_count: " << fm_count << endl;
+
+	for(int i=0; i<3; i++) {
+		for(int j=0; j<3; j++) {
+			cout << CV_MAT_ELEM( *fundamental_matrix, float, i, j) << "\t";
+		}
+		cout << endl;
+	}
+
 
 	//htable.elaborateStats();
 

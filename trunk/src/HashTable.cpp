@@ -77,7 +77,19 @@ void HashTable::elaborateStats() {
 	cout << "Mean numbers of elements per cell: " << (float)elementsAdded/(float)(hashTableSize-emptyCell) << endl;
 
 }
+//Checks if n is a prime number. Return 1 if yes, return 0 if not.
+int checkPrimer(int n) {
+	for(int m = 2; m*m <= n; m++)
+		if(n % m == 0)
+			return 0;
+	return 1;
+}
 
-int HashTable::nextPrime(int number) { // TODO: get next prime function
-	return number;
+int HashTable::nextPrime(int number) { // TODO: maybe nextPrime function can be optimized (precompiled table) ?
+	cout << "Number: " << number << endl;
+	if(number%2==0) number++;
+	while(checkPrimer(number))
+		number = number+2;
+	cout << "Prime found: " << number-2 << endl;
+	return number-2;
 }

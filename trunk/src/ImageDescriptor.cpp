@@ -35,7 +35,7 @@ vector<int> ImageDescriptor::getDescriptorVector() {
 }
 
 int ImageDescriptor::getHash() {
-	int sum = 1;
+	int sum = 0;
 	for(int i=0; i<descriptorVector.size(); i++) {
 			sum += (descriptorVector[i]);
 	}
@@ -48,6 +48,8 @@ void ImageDescriptor::printDescVector() {
 	}
 }
 
+/*
+ * REFACTORED ! Little improvement
 float ImageDescriptor::compare(ImageDescriptor *x) {
 	float difference = 0;
 	vector<int> xDescriptors = x->getDescriptorVector();	// TODO: Using = mean that all data will be copied
@@ -57,6 +59,18 @@ float ImageDescriptor::compare(ImageDescriptor *x) {
 		//if(descriptorVector[i]!=xDescriptors[i]) return 1;
 
 		difference += abs(descriptorVector[i]-xDescriptors[i]);
+
+	}
+	return difference;
+	//return 0;
+}
+*/
+
+float ImageDescriptor::compare(ImageDescriptor *x) {
+	float difference = 0;
+	for(int i=0; i<descriptorVector.size(); i++) {
+		//if(descriptorVector[i]!=xDescriptors[i]) return 1;
+		difference += abs(descriptorVector[i]-x->getDescriptorVector()[i]);
 
 	}
 	return difference;
