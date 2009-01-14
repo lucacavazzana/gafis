@@ -19,6 +19,8 @@
 #include <opencv/highgui.h>
 #include <opencv/cxtypes.h>
 
+#include "SURF/surflib.h"
+
 
 
 /* DEBUG_LVL = Livello di debug
@@ -47,11 +49,15 @@ DescGenerator *generator2;
 // Functions declarations
 int parseArguments(int argc, char **argv);
 void printHelp();
+int mainImage(const char *filename);
+int mainVideo(void);
 
 
 int main(int argc, char **argv) {
 
-	cvLoadImage("asd.jpg");
+	mainImage("image1.jpg");
+	//mainVideo();
+	return 0;
 	logger = Logger::getInstance();
 	logger->setLevel(DEBUG_LVL);		// TODO: this parameter must be passed with command line args
 
@@ -107,7 +113,7 @@ int main(int argc, char **argv) {
 	int foundedElements = 0;
 	int confronti=0;
 
-	int searchTollerance = 500;
+	int searchTollerance = 300;
 	PointCorrispondence *founded;
 	founded = new PointCorrispondence[100];
 
@@ -203,3 +209,66 @@ int parseArguments(int argc, char **argv) {
 	}
 	else return 0;
 }
+
+
+int mainImage(const char *filename)
+{
+  // Declare Ipoints and other stuff
+  IpVec ipts;
+  IplImage *img=cvLoadImage(filename);
+
+  // Detect and describe interest points in the image
+  surfDetDes(img, ipts, false, 3, 4, 1, 0.0004f);
+
+  // Draw the detected points
+  drawIpoints(img, ipts);
+
+  // Display the result
+  showImage(img);
+
+  return 0;
+}
+
+int mainVideo(void)
+{
+  // Initialise capture device
+  CvCapture* capture = cvCaptureFromCAM( CV_CAP_ANY );
+  if(!capture) error("No Capture");
+
+  // Create a window
+  cvNamedWindow("OpenSURF", CV_WINDOW_AUTOSIZE );
+
+  // Declare Ipoints and other stuff
+  IpVec ipts;
+  IplImage *img=NULL;
+
+  // Main capture loop
+  while( 1 )
+  {
+    // Grab frame from the capture source
+    img = cvQueryFrame(capture);
+
+    // Detect and describe interest points in the image
+    surfDetDes(img, ipts, false, 3, 4, 2, 0.002f);
+
+    // Draw the detected points
+    drawIpoints(img, ipts);
+
+    // Draw the FPS figure
+    drawFPS(img);
+
+    // Display the result
+    cvShowImage("OpenSURF", img);
+
+    // If ESC key pressed exit loop
+    if( (cvWaitKey(10) & 255) == 27 ) break;
+  }
+
+  // Release the capture device
+  cvReleaseCapture( &capture );
+  cvDestroyWindow( "OpenSURF" );
+  return 0;
+}
+
+//-------------------------------------------------------
+
