@@ -19,10 +19,11 @@ public:
 	ImageDescriptor();
 	ImageDescriptor(int dimensionality);
 	virtual ~ImageDescriptor();
-	void setDescriptorVector(vector<int> inVector);
-	vector<int> getDescriptorVector();
+	void setDescriptorVector(vector<float> inVector);
+	void ImageDescriptor::setDescriptorVector(float array[], int size);
+	vector<float> getDescriptorVector();
 	float compare(ImageDescriptor *x);
-	int getHash();
+	float getHash();
 	void printDescVector();
 	CvPoint position;
 	//int x;
@@ -31,8 +32,8 @@ public:
 	double orientation;
 	double cornerness;
 protected:
-	vector<int> descriptorVector;
-	float sum = -1;
+	vector<float> descriptorVector;
+	float sum;
 };
 
 #endif /* IMAGEDESCRIPTOR_H_ */

@@ -38,7 +38,7 @@ vector<ImageDescriptor*> ColorDescGenerator::textFileParser(string filepath) {
 	int Ndescriptors = 0;
 	istringstream inStream;
 	string temp;
-	vector<int> tempArray; 				// Temporary array allocated single time, contains descriptor vector
+	vector<float> tempArray; 				// Temporary array allocated single time, contains descriptor vector
 
 	// TODO: prevedere la possibilitˆ di riempire un albero binario
 	vector<ImageDescriptor*> list;
@@ -126,7 +126,7 @@ vector<ImageDescriptor*> ColorDescGenerator::textFileParser(string filepath) {
 
 	int tempsum=0;
 	for(int j=0; j<Ndescriptors; j++) {
-		vector<int> asd = list[j]->getDescriptorVector();
+		vector<float> asd = list[j]->getDescriptorVector();
 		for(int k=0; k<DescriptorsDimensionality; k++) {
 			tempsum+=asd[k];
 		}

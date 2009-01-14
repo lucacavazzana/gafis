@@ -12,6 +12,7 @@
 #include <ImageDescriptor.h>
 #include <DescGenerator.h>
 #include <ColorDescGenerator.h>
+#include <SURFDescGenerator.h>
 #include <HashTable.h>
 #include <PointCorrispondence.h>
 
@@ -49,15 +50,10 @@ DescGenerator *generator2;
 // Functions declarations
 int parseArguments(int argc, char **argv);
 void printHelp();
-int mainImage(const char *filename);
-int mainVideo(void);
 
 
 int main(int argc, char **argv) {
 
-	mainImage("image1.jpg");
-	//mainVideo();
-	return 0;
 	logger = Logger::getInstance();
 	logger->setLevel(DEBUG_LVL);		// TODO: this parameter must be passed with command line args
 
@@ -68,12 +64,16 @@ int main(int argc, char **argv) {
 		return 0;
 	}
 
-	generator1 = new ColorDescGenerator();
+	//generator1 = new ColorDescGenerator();
+	generator1 = new SURFDescGenerator();
 	generator1->setImagePath(images[0]);
 	vector<ImageDescriptor*> vec1= generator1->generateDescriptors();
+	logger->Log("Descriptors of first image complete", 2);
+
 	generator2 = new ColorDescGenerator();
 	generator2->setImagePath(images[1]);
 	vector<ImageDescriptor*> vec2= generator2->generateDescriptors();
+	logger->Log("Descriptors of second image complete", 2);
 
 	// TODO: rewrite with pointer (reference) and use btree/hash function
 
@@ -94,6 +94,7 @@ int main(int argc, char **argv) {
 	cout << "Number common descriptor = " << common_descriptors << endl;
 
 	*/
+	//return 0;
 
 	// COMPARE WITH HASHING FUNCTION
 
@@ -104,7 +105,8 @@ int main(int argc, char **argv) {
 
 	for(int i=0; i<vec1.size(); i++)	// Hashing first vector
 	{
-		htable.addElement(vec1[i]->getHash(), i);
+		cout << "index: " << vec1[i]->getHash() << endl;
+		htable.addElement((int)vec1[i]->getHash(), i);
 	}
 
 	logger->Log("HashTable complete", 2);
@@ -120,7 +122,7 @@ int main(int argc, char **argv) {
 	for(int j=0; j<vec2.size(); j++)
 	{
 		for(int k=-searchTollerance;k<searchTollerance;k++) {
-			temp = htable.getElement(vec2[j]->getHash()+k);
+			temp = htable.getElement(((int)vec2[j]->getHash())+k);
 			//cout << "temp: " << temp;
 			while(temp->index!=-1) {
 				//cout << "temp->index: " << temp->index << endl;
@@ -209,66 +211,3 @@ int parseArguments(int argc, char **argv) {
 	}
 	else return 0;
 }
-
-
-int mainImage(const char *filename)
-{
-  // Declare Ipoints and other stuff
-  IpVec ipts;
-  IplImage *img=cvLoadImage(filename);
-
-  // Detect and describe interest points in the image
-  surfDetDes(img, ipts, false, 3, 4, 1, 0.0004f);
-
-  // Draw the detected points
-  drawIpoints(img, ipts);
-
-  // Display the result
-  showImage(img);
-
-  return 0;
-}
-
-int mainVideo(void)
-{
-  // Initialise capture device
-  CvCapture* capture = cvCaptureFromCAM( CV_CAP_ANY );
-  if(!capture) error("No Capture");
-
-  // Create a window
-  cvNamedWindow("OpenSURF", CV_WINDOW_AUTOSIZE );
-
-  // Declare Ipoints and other stuff
-  IpVec ipts;
-  IplImage *img=NULL;
-
-  // Main capture loop
-  while( 1 )
-  {
-    // Grab frame from the capture source
-    img = cvQueryFrame(capture);
-
-    // Detect and describe interest points in the image
-    surfDetDes(img, ipts, false, 3, 4, 2, 0.002f);
-
-    // Draw the detected points
-    drawIpoints(img, ipts);
-
-    // Draw the FPS figure
-    drawFPS(img);
-
-    // Display the result
-    cvShowImage("OpenSURF", img);
-
-    // If ESC key pressed exit loop
-    if( (cvWaitKey(10) & 255) == 27 ) break;
-  }
-
-  // Release the capture device
-  cvReleaseCapture( &capture );
-  cvDestroyWindow( "OpenSURF" );
-  return 0;
-}
-
-//-------------------------------------------------------
-

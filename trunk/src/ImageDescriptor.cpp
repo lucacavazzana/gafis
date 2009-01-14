@@ -11,10 +11,11 @@
 using namespace std;
 
 ImageDescriptor::ImageDescriptor() {
-
+	sum = -1;
 }
 
 ImageDescriptor::ImageDescriptor(int dimensionality) {
+	sum = -1;
 	descriptorVector.reserve(dimensionality);
 }
 
@@ -22,7 +23,18 @@ ImageDescriptor::~ImageDescriptor() {
 
 }
 
-void ImageDescriptor::setDescriptorVector(vector<int> inVector) {
+void ImageDescriptor::setDescriptorVector(float array[], int size) {
+	//if(descriptorVector.size()>0) {
+	//	descriptorVector.clear();
+	//}
+	descriptorVector.clear();
+	descriptorVector.resize(size);
+	for(int i=0; i<size; i++) {
+		descriptorVector[i] = array[i];
+	}
+}
+
+void ImageDescriptor::setDescriptorVector(vector<float> inVector) {
 	//if(descriptorVector.size()>0) {
 	//	descriptorVector.clear();
 	//}
@@ -30,17 +42,16 @@ void ImageDescriptor::setDescriptorVector(vector<int> inVector) {
 	descriptorVector = inVector; // TODO: just copy instance or i must copy all data ?
 }
 
-vector<int> ImageDescriptor::getDescriptorVector() {
+vector<float> ImageDescriptor::getDescriptorVector() {
 	return descriptorVector;
 }
 
-int ImageDescriptor::getHash() {
-	if(sum>=0) {
-		return sum;
-	}
-	sum = 0;
-	for(int i=0; i<descriptorVector.size(); i++) {
-			sum += (descriptorVector[i]);
+float ImageDescriptor::getHash() {
+	if(sum==-1) {
+		sum = 0;
+		for(int i=0; i<descriptorVector.size(); i++) {
+				sum += (descriptorVector[i]);
+		}
 	}
 	return sum;
 }
@@ -73,7 +84,7 @@ float ImageDescriptor::compare(ImageDescriptor *x) {
 	float difference = 0;
 	for(int i=0; i<descriptorVector.size(); i++) {
 		//if(descriptorVector[i]!=xDescriptors[i]) return 1;
-		difference += abs(descriptorVector[i]-x->getDescriptorVector()[i]);
+		difference += fabs(descriptorVector[i]-x->getDescriptorVector()[i]);
 	}
 	return difference;
 	//return 0;
