@@ -10,6 +10,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <opencv/cxtypes.h>
 
 using namespace std;
 
@@ -89,8 +90,8 @@ vector<ImageDescriptor*> ColorDescGenerator::textFileParser(string filepath) {
 			// TODO: exception
 			logInstance->Log("Error expected '<CIRCLE': found '" + temp + "'", 2);
 		}
-		inStream >> list[i]->x;
-		inStream >> list[i]->y;
+		inStream >> list[i]->position.x;
+		inStream >> list[i]->position.y;
 		inStream >> list[i]->scale;
 		inStream >> list[i]->orientation;
 		inStream >> list[i]->cornerness;
