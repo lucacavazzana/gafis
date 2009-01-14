@@ -31,7 +31,7 @@ HashTable::~HashTable() {
 	//delete hashTable;
 }
 
-void HashTable::addElement(int key, int index) {
+int HashTable::addElement(int key, int index) {
 
 	int candidate = key%hashTableSize;	// computation of the index of hash array
 
@@ -48,6 +48,8 @@ void HashTable::addElement(int key, int index) {
 	current->nextRecord->index=-1;
 
 	elementsAdded++;
+
+	return candidate;
 
 }
 
