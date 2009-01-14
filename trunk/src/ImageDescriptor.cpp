@@ -35,7 +35,10 @@ vector<int> ImageDescriptor::getDescriptorVector() {
 }
 
 int ImageDescriptor::getHash() {
-	int sum = 0;
+	if(sum>=0) {
+		return sum;
+	}
+	sum = 0;
 	for(int i=0; i<descriptorVector.size(); i++) {
 			sum += (descriptorVector[i]);
 	}
@@ -44,7 +47,7 @@ int ImageDescriptor::getHash() {
 
 void ImageDescriptor::printDescVector() {
 	for(int i=0; i<descriptorVector.size(); i++) {
-				cout << descriptorVector[i] << endl;
+		cout << descriptorVector[i] << endl;
 	}
 }
 
@@ -71,7 +74,6 @@ float ImageDescriptor::compare(ImageDescriptor *x) {
 	for(int i=0; i<descriptorVector.size(); i++) {
 		//if(descriptorVector[i]!=xDescriptors[i]) return 1;
 		difference += abs(descriptorVector[i]-x->getDescriptorVector()[i]);
-
 	}
 	return difference;
 	//return 0;

@@ -32,6 +32,7 @@ public:
 	double cornerness;
 protected:
 	vector<int> descriptorVector;
+	float sum = -1;
 };
 
 #endif /* IMAGEDESCRIPTOR_H_ */
