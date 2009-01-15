@@ -67,14 +67,17 @@ int main(int argc, char **argv) {
 	//generator1 = new ColorDescGenerator();
 	generator1 = new SURFDescGenerator();
 	generator1->setImagePath(images[0]);
-	vector<ImageDescriptor*> vec1= generator1->generateDescriptors();
+	vector<ImageDescriptor*> vec1;
+	//vec1 = generator1->generateDescriptors();
 	logger->Log("Descriptors of first image complete", 2);
 
-	generator2 = new ColorDescGenerator();
+
+	generator2 = new SURFDescGenerator();
 	generator2->setImagePath(images[1]);
 	vector<ImageDescriptor*> vec2= generator2->generateDescriptors();
 	logger->Log("Descriptors of second image complete", 2);
 
+	return 0;
 	// TODO: rewrite with pointer (reference) and use btree/hash function
 
 	/*
@@ -103,11 +106,27 @@ int main(int argc, char **argv) {
 	int collision = 0; 	// number of collisions founded (for statistics purpose)
 	int emptyCell = 0;	// number of empty cell of array
 
+	float normalizer = vec1[0]->getNormalizer();
+
 	for(int i=0; i<vec1.size(); i++)	// Hashing first vector
 	{
-		cout << "index: " << vec1[i]->getHash() << endl;
-		htable.addElement((int)vec1[i]->getHash(), i);
+		//cout << "index: " << (int)(vec1[i]->getHash()) << endl;
+		htable.addElement(vec1[i]->getHash(), i);
 	}
+
+	for(int i=0; i<vec2.size(); i++)	// Hashing first vector
+	{
+		//cout << "index: " << vec1[i]->getHash()*100 << endl;
+		//vec2[i]->setNormalizer(1);
+		cout << "index: " << (vec2[i]->getHash()) << endl;
+	}
+
+	//int size = vec1[0]->getDescriptorVector().size();
+	for(int i=0; i<64; i++) {
+		//cout << vec1[0]->getDescriptorVector()[i] << endl;
+	}
+
+	// cout << "Compare: " << vec1[1]->compare(vec1[1]) << endl;
 
 	logger->Log("HashTable complete", 2);
 
@@ -115,18 +134,19 @@ int main(int argc, char **argv) {
 	int foundedElements = 0;
 	int confronti=0;
 
-	int searchTollerance = 300;
+	int searchTollerance = 0.5;
 	PointCorrispondence *founded;
-	founded = new PointCorrispondence[100];
+	founded = new PointCorrispondence[1];
 
 	for(int j=0; j<vec2.size(); j++)
 	{
-		for(int k=-searchTollerance;k<searchTollerance;k++) {
+		for(int k=-searchTollerance;k<searchTollerance;k++)	{
 			temp = htable.getElement(((int)vec2[j]->getHash())+k);
 			//cout << "temp: " << temp;
 			while(temp->index!=-1) {
-				//cout << "temp->index: " << temp->index << endl;
-				if((vec1[temp->index]->compare(vec2[j]))<=searchTollerance) {				//cout << "found " << endl;
+				// cout << "Difference: " << (vec1[temp->index]->compare(vec2[j])) << endl;
+				// cout << "temp->index: " << temp->index << endl;
+				if((vec1[temp->index]->compare(*vec2[j]))<=searchTollerance) {				//cout << "found " << endl;
 					founded[foundedElements].setPoints(vec1[temp->index]->position, vec2[j]->position);
 					foundedElements++;
 					cout << "Founded: [" << vec1[temp->index]->position.x << ";"<< vec1[temp->index]->position.y <<"] and [" << vec2[j]->position.x << ";"<< vec2[j]->position.y << "]" << endl;
@@ -171,7 +191,6 @@ int main(int argc, char **argv) {
 		}
 		cout << endl;
 	}
-
 
 	//htable.elaborateStats();
 
