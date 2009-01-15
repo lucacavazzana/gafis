@@ -88,10 +88,8 @@ int checkPrimer(int n) {
 }
 
 int HashTable::nextPrime(int number) { // TODO: maybe nextPrime function can be optimized (precompiled table) ?
-	cout << "Number: " << number << endl;
 	if(number%2==0) number++;
 	while(checkPrimer(number))
 		number = number+2;
-	cout << "Prime found: " << number-2 << endl;
 	return number-2;
 }

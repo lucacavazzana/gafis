@@ -22,8 +22,10 @@ public:
 	void setDescriptorVector(vector<float> inVector);
 	void ImageDescriptor::setDescriptorVector(float array[], int size);
 	vector<float> getDescriptorVector();
-	float compare(ImageDescriptor *x);
+	virtual float compare(ImageDescriptor & x);
 	float getHash();
+	void setNormalizer(float value);
+	float getNormalizer();
 	void printDescVector();
 	CvPoint position;
 	//int x;
@@ -34,6 +36,7 @@ public:
 protected:
 	vector<float> descriptorVector;
 	float sum;
+	float hashNormalizer;
 };
 
 #endif /* IMAGEDESCRIPTOR_H_ */

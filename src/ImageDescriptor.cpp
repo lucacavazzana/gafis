@@ -12,11 +12,13 @@ using namespace std;
 
 ImageDescriptor::ImageDescriptor() {
 	sum = -1;
+	hashNormalizer = 1;
 }
 
 ImageDescriptor::ImageDescriptor(int dimensionality) {
 	sum = -1;
 	descriptorVector.reserve(dimensionality);
+	hashNormalizer = 1;
 }
 
 ImageDescriptor::~ImageDescriptor() {
@@ -50,16 +52,28 @@ float ImageDescriptor::getHash() {
 	if(sum==-1) {
 		sum = 0;
 		for(int i=0; i<descriptorVector.size(); i++) {
-				sum += (descriptorVector[i]);
+				if(descriptorVector[i]<0)
+					sum -= (descriptorVector[i]);
+				else
+					sum += (descriptorVector[i]);
 		}
 	}
-	return sum;
+	return sum*hashNormalizer;
 }
 
 void ImageDescriptor::printDescVector() {
 	for(int i=0; i<descriptorVector.size(); i++) {
-		cout << descriptorVector[i] << endl;
+		if((i+1)%2==0 || (i+1)%4==0)
+			cout << descriptorVector[i] << endl;
 	}
+}
+
+void ImageDescriptor::setNormalizer(float value) {
+	hashNormalizer = value;
+}
+
+float ImageDescriptor::getNormalizer() {
+	return hashNormalizer;
 }
 
 /*
@@ -80,12 +94,13 @@ float ImageDescriptor::compare(ImageDescriptor *x) {
 }
 */
 
-float ImageDescriptor::compare(ImageDescriptor *x) {
+float ImageDescriptor::compare(ImageDescriptor & x) {
 	float difference = 0;
+	float singleDiff;
 	for(int i=0; i<descriptorVector.size(); i++) {
-		//if(descriptorVector[i]!=xDescriptors[i]) return 1;
-		difference += fabs(descriptorVector[i]-x->getDescriptorVector()[i]);
+		singleDiff = pow(descriptorVector[i] - x.getDescriptorVector()[i],2);
+		difference += singleDiff;
 	}
+	difference = pow(difference, 0.5);
 	return difference;
-	//return 0;
 }
