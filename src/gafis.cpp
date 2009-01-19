@@ -15,6 +15,9 @@
 #include <SURFDescGenerator.h>
 #include <HashTable.h>
 #include <PointCorrispondence.h>
+#include <GASAC.h>
+
+#include <ga/ga.h>
 
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
@@ -35,6 +38,12 @@
 
 // MAX_IMAGES = Numero massimo di immagini che  possibile elaborare
 #define MAX_IMAGES 2
+
+// BEST-BIN-FIRST SEARCH PARAMETERS
+#define NTOFIND 2
+#define MAXDEEPTH 20
+
+#define NCOUPLES 100
 
 //#define cout STD_COUT
 
@@ -68,7 +77,7 @@ int main(int argc, char **argv) {
 	generator1 = new SURFDescGenerator();
 	generator1->setImagePath(images[0]);
 	vector<ImageDescriptor*> vec1;
-	//vec1 = generator1->generateDescriptors();
+	vec1 = generator1->generateDescriptors();
 	logger->Log("Descriptors of first image complete", 2);
 
 
@@ -77,91 +86,105 @@ int main(int argc, char **argv) {
 	vector<ImageDescriptor*> vec2= generator2->generateDescriptors();
 	logger->Log("Descriptors of second image complete", 2);
 
-	return 0;
-	// TODO: rewrite with pointer (reference) and use btree/hash function
+	//vec2 = vec1; // PROVA DEL 9 :D should return all values = 0;
 
-	/*
+	// Using best-bin-first algo (included in OpenCV)
 
-	// COMPARE ONE BY ONE FUNCTION
+	logger->Log("Creating matrix of feature (first image)", 2);
 
-	int common_descriptors =0;
-	for(int i=3500; i<vec1.size(); i++) {
-		cout << (float)i*100/vec1.size() << "% " << endl;
-		for(int j=0; j<vec2.size(); j++) {
-			if(!vec1[i]->compare(vec2[j])) {
-				cout << "FOUNDED..." << common_descriptors++ << endl;
-			}
+	CvMat* firstDesc = cvCreateMat(vec1.size(),64,CV_32FC1);
+
+	for(int i=0; i<vec1.size(); i++) {
+		for(int j=0; j<64; j++) {
+			cvmSet(firstDesc, i, j, vec1[i]->getDescriptorVector()[j]);
 		}
 	}
 
-	cout << "Number common descriptor = " << common_descriptors << endl;
+	logger->Log("Matrix of feature complete", 2);
 
-	*/
-	//return 0;
+	CvFeatureTree* firstImageTree;
+	firstImageTree = cvCreateFeatureTree(firstDesc);
 
-	// COMPARE WITH HASHING FUNCTION
+	logger->Log("Feature Tree complete", 2);
 
-	HashTable htable = HashTable(vec1.size());
+	logger->Log("Creating matrix of feature (second image)", 2);
 
-	int collision = 0; 	// number of collisions founded (for statistics purpose)
-	int emptyCell = 0;	// number of empty cell of array
+	CvMat* secondDesc = cvCreateMat(vec2.size(),64,CV_32FC1);
 
-	float normalizer = vec1[0]->getNormalizer();
-
-	for(int i=0; i<vec1.size(); i++)	// Hashing first vector
-	{
-		//cout << "index: " << (int)(vec1[i]->getHash()) << endl;
-		htable.addElement(vec1[i]->getHash(), i);
+	for(int i=0; i<vec2.size(); i++) {
+		for(int j=0; j<64; j++) {
+			cvmSet(secondDesc, i, j, vec2[i]->getDescriptorVector()[j]);
+		}
 	}
 
-	for(int i=0; i<vec2.size(); i++)	// Hashing first vector
-	{
-		//cout << "index: " << vec1[i]->getHash()*100 << endl;
-		//vec2[i]->setNormalizer(1);
-		cout << "index: " << (vec2[i]->getHash()) << endl;
+	CvMat *results = cvCreateMat(vec2.size(), NTOFIND, CV_32SC1);
+	CvMat *distances = cvCreateMat(vec2.size(), NTOFIND, CV_64FC1);
+
+	logger->Log("Finding similar points...", 2);
+
+	cvFindFeatures(firstImageTree, secondDesc, results, distances, NTOFIND, MAXDEEPTH);
+
+	logger->Log("Points search complete", 2);
+
+	// Selecting best 'NCOUPLES' couples
+	PointCorrispondence corrispondence[NCOUPLES];
+	double maxValue = 0;
+	double tempMax = 0;
+	int founded = 0;
+	double tempMin;
+
+#define MAXDOUBLE 10000
+	for(int i=0; i<NCOUPLES; i++) {
+		corrispondence[i].setDifference(MAXDOUBLE);
 	}
+	maxValue = MAXDOUBLE;
 
-	//int size = vec1[0]->getDescriptorVector().size();
-	for(int i=0; i<64; i++) {
-		//cout << vec1[0]->getDescriptorVector()[i] << endl;
-	}
-
-	// cout << "Compare: " << vec1[1]->compare(vec1[1]) << endl;
-
-	logger->Log("HashTable complete", 2);
-
-	hashElement *temp;
-	int foundedElements = 0;
-	int confronti=0;
-
-	int searchTollerance = 0.5;
-	PointCorrispondence *founded;
-	founded = new PointCorrispondence[1];
-
-	for(int j=0; j<vec2.size(); j++)
-	{
-		for(int k=-searchTollerance;k<searchTollerance;k++)	{
-			temp = htable.getElement(((int)vec2[j]->getHash())+k);
-			//cout << "temp: " << temp;
-			while(temp->index!=-1) {
-				// cout << "Difference: " << (vec1[temp->index]->compare(vec2[j])) << endl;
-				// cout << "temp->index: " << temp->index << endl;
-				if((vec1[temp->index]->compare(*vec2[j]))<=searchTollerance) {				//cout << "found " << endl;
-					founded[foundedElements].setPoints(vec1[temp->index]->position, vec2[j]->position);
-					foundedElements++;
-					cout << "Founded: [" << vec1[temp->index]->position.x << ";"<< vec1[temp->index]->position.y <<"] and [" << vec2[j]->position.x << ";"<< vec2[j]->position.y << "]" << endl;
+	//cout << "Max Value: " << maxValue;
+	// Search for best couples (min distance)
+	for(int i=0; i<vec2.size(); i++) {
+		// Find min distance of same image2's point
+		founded = 0;
+		tempMin = cvmGet(distances, i, 0);
+		for(int j=1; j<NTOFIND; j++) {
+				if(tempMin>cvmGet(distances, i, j)) {
+						founded = j;
 				}
-				confronti++;
-				temp = temp->nextRecord;
-			}
 		}
-		//cout << "--------" << endl;
+		// If the point has distance below (is more similary) with the actual max of corrispondance
+		if(cvmGet(distances, i, founded)<maxValue) {
+			// Search the element to be substituted in candidate best array (corrispondence)
+			// and meanwhile search for the new maxValue
+			tempMax = 0;
+			bool substituted = false;
+			for(int j=0; j<NCOUPLES; j++) {
+				// Seach for element to substitute
+				if(corrispondence[j].getDifference()==maxValue && !substituted) {
+					// FOUND, replace it with new value
+					substituted = true;
+					corrispondence[j].setDifference(cvmGet(distances, i, founded));
+					corrispondence[j].setPoints(vec1[cvGet2D(results,i,founded).val[0]]->position,vec2[i]->position);
+				}
+				// Search for new maxValue
+				if(corrispondence[j].getDifference()>tempMax) {
+					tempMax = corrispondence[j].getDifference();
+				}
+			}
+			maxValue = tempMax;
+		}
 	}
 
-	cout << "Founded elements: " << foundedElements << endl;
-	cout << "Confronti: " << confronti << endl;
+	for(int i=0; i<NCOUPLES; i++) {
+		cout << "Difference: " << corrispondence[i].getDifference() << endl;
+		corrispondence[i].printPoints();
+	}
 
+	cvReleaseFeatureTree(firstImageTree);
 
+	GASAC *ga = GASAC::getInstance();
+	ga->setPoints(corrispondence, NCOUPLES);
+	ga->run();
+
+/*
 	// COMPUTING FOUNDAMENTAL MATRIX
 	CvMat* points1;
 	CvMat* points2;
@@ -170,13 +193,12 @@ int main(int argc, char **argv) {
 	points1 = cvCreateMat(1,8,CV_32FC2);
 	points2 = cvCreateMat(1,8,CV_32FC2);
 	status = cvCreateMat(1,8,CV_8UC1);
-	/* Fill the points here ... */
 	for( int i = 0; i < 8; i++ )
 	{
-	    points1->data.fl[i*2]   = founded[i].p1.x;
-	    points1->data.fl[i*2+1] = founded[i].p1.y;
-	    points2->data.fl[i*2]   = founded[i].p2.x;
-	    points2->data.fl[i*2+1] = founded[i].p2.y;
+	    points1->data.fl[i*2]   = corrispondence[i].p1.x;
+	    points1->data.fl[i*2+1] = corrispondence[i].p1.y;
+	    points2->data.fl[i*2]   = corrispondence[i].p2.x;
+	    points2->data.fl[i*2+1] = corrispondence[i].p2.y;
 	}
 	fundamental_matrix = cvCreateMat(3,3,CV_32FC1);
 	int fm_count = cvFindFundamentalMat( points1, points2,
@@ -185,14 +207,19 @@ int main(int argc, char **argv) {
 
 	cout << "fm_count: " << fm_count << endl;
 
+	cout << "Error calculated: " << corrispondence[0].computeError(fundamental_matrix) << endl;
+	cout << "Error calculated: " << corrispondence[1].computeError(fundamental_matrix) << endl;
+	cout << "Error calculated: " << corrispondence[2].computeError(fundamental_matrix) << endl;
+	cout << "Error calculated: " << corrispondence[25].computeError(fundamental_matrix) << endl;
+
 	for(int i=0; i<3; i++) {
 		for(int j=0; j<3; j++) {
 			cout << CV_MAT_ELEM( *fundamental_matrix, float, i, j) << "\t";
 		}
 		cout << endl;
 	}
+	*/
 
-	//htable.elaborateStats();
 
 	logger->Log("That's all folks", 2);
 	return 0;
@@ -208,7 +235,6 @@ void printHelp() {
 int parseArguments(int argc, char **argv) {
 
 	// TODO: better arguments parser, we can use a library for that !
-
 	for(int i=1; i<argc; i++) {
 		ostringstream argomenti(ostringstream::out); // TODO: it can stay out of for but doesn't clear correctly
 		argomenti << "arg " << i << ": " << argv[i];
@@ -223,7 +249,6 @@ int parseArguments(int argc, char **argv) {
 			}
 		}
 	}
-
 	// Se non ho sufficienti argomenti (almeno 2 immagini) ritorno 1 (errore)
 	if(nimages<2) {
 		return 1;

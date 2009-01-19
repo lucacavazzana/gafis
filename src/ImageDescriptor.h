@@ -27,7 +27,7 @@ public:
 	void setNormalizer(float value);
 	float getNormalizer();
 	void printDescVector();
-	CvPoint position;
+	CvPoint2D32f position;
 	//int x;
 	//int y;
 	double scale;
