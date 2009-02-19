@@ -23,10 +23,6 @@
 #include <opencv/highgui.h>
 #include <opencv/cxtypes.h>
 
-//#include "SURF/surflib.h"
-
-
-
 /* DEBUG_LVL = Livello di debug
  * definisce il livello di "verbose" dell'applicazione
  * 0 = Nessun messaggio in output di debug
