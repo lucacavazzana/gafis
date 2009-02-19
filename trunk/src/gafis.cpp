@@ -57,6 +57,10 @@ int parseArguments(int argc, char **argv);
 void printHelp();
 void viewBothImages(IplImage *img1, IplImage *img2,PointCorrispondence *corrispondence, int *best, int size);
 
+float pointsDistance(CvPoint2D32f a, CvPoint2D32f b)
+{
+    return sqrt(pow(((float)a.x-b.x),2) + pow(((float)a.y-b.y),2));
+}
 
 int main(int argc, char **argv) {
 
@@ -134,7 +138,8 @@ int main(int argc, char **argv) {
 	}
 	maxValue = MAXDOUBLE;
 
-	//cout << "Max Value: " << maxValue;
+	int kasd=0;
+
 	// Search for best couples (min distance)
 	for(int i=0; i<vec2.size(); i++) {
 		// Find min distance of same image2's point
@@ -155,10 +160,26 @@ int main(int argc, char **argv) {
 			for(int j=0; j<NCOUPLES; j++) {
 				// Seach for element to substitute
 				if(corrispondence[j].getDifference()==maxValue && !substituted) {
-					// FOUND, replace it with new value
 					substituted = true;
-					corrispondence[j].setDifference(cvmGet(distances, i, founded));
-					corrispondence[j].setPoints(vec1[cvGet2D(results,i,founded).val[0]]->position,vec2[i]->position);
+					// TODO: FARE UN REFACTOR PESANTE DI TUTTA QUESTA PARTE !
+
+					for(kasd=0; kasd<NCOUPLES; kasd++) {
+						const float distanza = pointsDistance(corrispondence[kasd].p1,vec1[cvGet2D(results,i,founded).val[0]]->position);
+						if(distanza < 1.0f) {
+							// Valuta il migliore e sostituisci
+							if(corrispondence[kasd].getDifference() > cvmGet(distances, i, founded)) {
+								corrispondence[kasd].setDifference(cvmGet(distances, i, founded));
+								corrispondence[kasd].setPoints(vec1[cvGet2D(results,i,founded).val[0]]->position,vec2[i]->position);
+							}
+							substituted = false;
+						}
+					}
+
+					// FOUND, replace it with new value
+					if(substituted) {
+						corrispondence[j].setDifference(cvmGet(distances, i, founded));
+						corrispondence[j].setPoints(vec1[cvGet2D(results,i,founded).val[0]]->position,vec2[i]->position);
+					}
 				}
 				// Search for new maxValue
 				if(corrispondence[j].getDifference()>tempMax) {
