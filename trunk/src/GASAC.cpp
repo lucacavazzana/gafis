@@ -18,15 +18,17 @@ GASAC* GASAC::classInstance = NULL; // TODO: why this must be here ???
 GASAC::GASAC(PointCorrispondence *corr, int size) {
 	corrispondence = corr;
 	ncorrispondence = size;
-	geneSize = 7;
+	geneSize = 8;
 }
 
 GASAC::GASAC() {
-	geneSize = 7;
+	geneSize = 8;
 	popsize= 100;
-	ngen   = 100;
+	ngen   = 200;
 	pmut   = 1/(2*geneSize);
-	pcross = 0.5;
+	pmut   = 0.1;
+	//pmut = 0;
+	pcross = 0.8;
 }
 
 GASAC* GASAC::getInstance() {
@@ -55,18 +57,34 @@ float GASAC::Objective(GAGenome& g)
 	}
 	int fm_count = cvFindFundamentalMat(instance->points1, instance->points2,
 		                                     instance->fundamental_matrix,
-		                                     CV_FM_7POINT,1.0,0.99,instance->status);
+		                                     CV_FM_8POINT,1.0,0.99,instance->status);
 
 	// Check what point respect the calculated foundamental matrix
 
 	// Compute with robust method "Median"
 	float values[instance->ncorrispondence];
+	float threshold =5;
+	float threshold2=threshold*threshold;
+	float sum =0;
 	for(int i=0; i<instance->ncorrispondence; i++) {
-			values[i] = instance->corrispondence->computeError(instance->fundamental_matrix);
+			values[i] = instance->corrispondence[i].computeError(instance->fundamental_matrix);
+			//cout << "asd: " << values[i]<< endl;
+			if(values[i]<threshold) {
+				//cout << "asd: " << values[i]<< endl;
+				//values[i] = threshold;
+				//cout << "lol" << endl;
+				//sum+=values[i]*pow(threshold2-pow(values[i],2),2);
+			}
+			sum+=values[i];
 	}
-	sort(values, values + instance->ncorrispondence);
 
-	return values[instance->ncorrispondence/2];
+	// Metodo somma
+	//return sum;
+	// Metodo mediana
+	sort(values, values + instance->ncorrispondence);
+	float mediana = values[instance->ncorrispondence/2];
+	return 1.96*(1+5/(instance->ncorrispondence-1))*mediana;
+	//return values[instance->ncorrispondence/2];
 	/*
 	float sum =0;
 	for(int i=0; i<instance->ncorrispondence; i++) {
@@ -82,24 +100,17 @@ void GASAC::init(GAGenome& c) {
 	GASAC *instance = GASAC::getInstance();
 	int candidate = 0;
     for(int d = 0; d < instance->geneSize; d++) {
-    	bool exist = true;
-    	while(exist) {
+    	bool exist;
+    	do {
+    		exist = false;
     		candidate = GARandomInt(0,instance->ncorrispondence-1);
-			for(int i=0; i<instance->geneSize; i++)
-				if(genome.gene(i)==candidate) // TODO: can break for loop
-					exist = false;
-			if(exist)
-				genome.gene(d, candidate);
-    	}
+    		for(int i=0; i<instance->geneSize; i++)
+    			if(genome.gene(i)==candidate) // TODO: can break for loop
+    				exist = true;
+    	} while(exist);
+    	genome.gene(d, candidate);
 	}
 }
-
-    /*
-    for(int i = 0; i < instance->geneSize; i++) {
-        int r = GARandomInt(0, instance->geneSize-1);
-        genome.swap(i, r);
-    }
-    */
 
 int GASAC::mutate(GAGenome& c, float mutprob)
 {
@@ -109,21 +120,25 @@ int GASAC::mutate(GAGenome& c, float mutprob)
 	if(mutprob <= 0.0)
 	return(0);
 
-	int mutate = 0;
+	int mutate = false;
 	for(int d = 0; d < instance->geneSize; d++) {
 		float mut = GARandomFloat(0.0, 1.0);
 		if(mut < mutprob) {
 			mutate = true;
 			// Generate new element...check if already exist
-			bool exist = true;
-			while(exist) {
-				int newvalue = GARandomInt(0, instance->ncorrispondence-1);
-				for(int i=0; i<instance->geneSize; i++)
-					if(genome.gene(i)==newvalue) // TODO: can break for loop
-						exist = false;
-				if(!exist)
-					genome.gene(d, newvalue);
-			}
+			bool exist;
+			int newvalue;
+			do {
+				exist = false;
+				newvalue = GARandomInt(0, instance->ncorrispondence-1);
+				for(int i=0; i<instance->geneSize; i++) {
+					if(genome.gene(i)==newvalue) { // TODO: can break for loop
+						exist = true;
+						break;
+					}
+				}
+			} while(exist);
+			genome.gene(d, newvalue);
 		}
 	}
 	return(mutate);
@@ -151,7 +166,7 @@ int crossover(const GAGenome& p1, const GAGenome& p2, GAGenome* c1, GAGenome* c2
 			a = mom.gene(i);
 			b = dad.gene(i);
 			exist = false;
-			for(int j=0; j<mom.length(); j++) {
+			for(int j=0; j<=site; j++) {
 				if(a==bro.gene(j) || b==sis.gene(j)) {
 					exist = true;
 					break;
@@ -225,28 +240,24 @@ int GASAC::run() {
 	cout << "random values in the genome:\n";
 
 	for(int i=0; i<geneSize; i++){
-	cout.width(10); cout << genome.gene(i) << " ";
+		cout.width(10); cout << genome.gene(i) << " ";
 	}
 	cout << "\n";
 
 	ga.minimize();
 
-
 	genome = ga.statistics().bestIndividual();
 	cout << "the ga generated:\n" << ga.statistics().bestIndividual() << endl;
 
+	bestCouples = new int[geneSize];
+	int j=0;
 	for(int i=0; i<geneSize; i++) {
+		bestCouples[j++] = genome.gene(i);
 		corrispondence[genome.gene(i)].printPoints();
 		cout << "\n";
 	}
 
-
 	cout << "\n\n"; cout.flush();
-
-	// We could print out the genome directly, like this:
-	// cout << genome << "\n";
-
-	cout << "best of generation data are in 'bog.dat'\n";
 
 }
 

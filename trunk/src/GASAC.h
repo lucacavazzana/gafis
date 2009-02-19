@@ -37,6 +37,8 @@ public:
 	float pmut;
 	float pcross;
 
+	int *bestCouples;
+
 protected:
 	static GASAC* classInstance;
 
