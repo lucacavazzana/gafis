@@ -12,7 +12,6 @@
 #include <ImageDescriptor.h>
 #include <DescGenerator.h>
 #include <ColorDescGenerator.h>
-#include <SURFDescGenerator.h>
 #include <HashTable.h>
 #include <PointCorrispondence.h>
 #include <GASAC.h>
