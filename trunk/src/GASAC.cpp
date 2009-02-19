@@ -24,7 +24,7 @@ GASAC::GASAC(PointCorrispondence *corr, int size) {
 GASAC::GASAC() {
 	geneSize = 8;
 	popsize= 100;
-	ngen   = 200;
+	ngen   = 100;
 	pmut   = 1/(2*geneSize);
 	pmut   = 0.1;
 	//pmut = 0;

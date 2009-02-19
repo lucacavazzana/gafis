@@ -12,6 +12,7 @@
 #include <ImageDescriptor.h>
 #include <DescGenerator.h>
 #include <ColorDescGenerator.h>
+#include <SURFDescGenerator.h>
 #include <HashTable.h>
 #include <PointCorrispondence.h>
 #include <GASAC.h>
@@ -31,11 +32,11 @@
  * 4 = Massimo livello possibile di debug */
 #define DEBUG_LVL 3
 
-// MAX_IMAGES = Numero massimo di immagini che possibile elaborare
+// MAX_IMAGES = Numero massimo di immagini che e possibile elaborare
 #define MAX_IMAGES 2
 
 // BEST-BIN-FIRST SEARCH PARAMETERS
-#define NTOFIND 5
+#define NTOFIND 10
 #define MAXDEEPTH 20
 
 #define NCOUPLES 100
@@ -81,8 +82,6 @@ int main(int argc, char **argv) {
 	generator2->setImagePath(images[1]);
 	vector<ImageDescriptor*> vec2= generator2->generateDescriptors();
 	logger->Log("Descriptors of second image complete", 2);
-
-	//vec2 = vec1; // PROVA DEL 9 :D should return all values = 0;
 
 	// Using best-bin-first algo (included in OpenCV)
 
