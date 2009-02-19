@@ -46,6 +46,7 @@ void PointCorrispondence::printPoints() {
 }
 
 double PointCorrispondence::computeError(CvMat* fundamental_matrix) {
+	// For 2 points related with Foundamental matrix should be: a*F*b = 0
 	CvMat *pm1 = cvCreateMat(3,1,CV_32FC1);
 	cvmSet(pm1, 0, 0, p1.x);
 	cvmSet(pm1, 1, 0, p1.y);
@@ -58,6 +59,7 @@ double PointCorrispondence::computeError(CvMat* fundamental_matrix) {
 	CvMat *final = cvCreateMat(1,1,CV_32FC1);
 	cvGEMM(pm2, fundamental_matrix, 1, NULL, 1, dst, CV_GEMM_A_T );
 	cvGEMM(dst, pm1, 1, NULL, 1, final,0 );
+
 	return pow(cvmGet(final, 0, 0),2);
 }
 
