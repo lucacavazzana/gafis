@@ -7,6 +7,7 @@
 
 #include "PointCorrispondence.h"
 
+#include <sstream>
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
 #include <opencv/cxtypes.h>
