@@ -255,7 +255,8 @@ int GASAC::run() {
 	for(int i=0; i<geneSize; i++) {
 		bestCouples[j++] = genome.gene(i);
 		corrispondence[genome.gene(i)].printPoints();
-		cout << "\n";
+		cout << " Diff: " << corrispondence[genome.gene(i)].getDifference() << endl;
+		//cout << "\n";
 	}
 
 	cout << "\n\n"; cout.flush();
