@@ -31,7 +31,7 @@
  * 4 = Massimo livello possibile di debug */
 #define DEBUG_LVL 3
 
-// MAX_IMAGES = Numero massimo di immagini che è possibile elaborare
+// MAX_IMAGES = Numero massimo di immagini che possibile elaborare
 #define MAX_IMAGES 2
 
 // BEST-BIN-FIRST SEARCH PARAMETERS
