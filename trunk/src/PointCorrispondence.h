@@ -9,6 +9,9 @@
 #include <opencv/highgui.h>
 #include <opencv/cxtypes.h>
 #include <iostream>
+#include <string>
+
+using namespace std;
 
 #ifndef POINTCORRISPONDENCE_H_
 #define POINTCORRISPONDENCE_H_
