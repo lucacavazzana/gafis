@@ -20,6 +20,7 @@ public:
 	virtual ~PointCorrispondence();
 	void setPoint1(float x, float y);
 	void setPoint2(float x, float y);
+	void setPoints(float x1, float y1, float x2, float y2);
 	void setPoints(CvPoint2D32f punto1, CvPoint2D32f punto2);
 	void setDifference(double value) {
 		difference = value;
@@ -27,6 +28,9 @@ public:
 	double getDifference() {
 		return difference;
 	}
+
+	string getScript();
+
 	CvPoint2D32f p1;
 	CvPoint2D32f p2;
 	// TODO: this class can contain "ImageDescriptor"...

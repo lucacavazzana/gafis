@@ -41,8 +41,31 @@ void PointCorrispondence::setPoints(CvPoint2D32f punto1, CvPoint2D32f punto2) {
 	p2 = punto2;
 }
 
+void PointCorrispondence::setPoints(float x1, float y1, float x2, float y2){
+	p1.x = x1;
+	p1.y = y1;
+	p2.x = x2;
+	p2.y = y2;
+}
+
 void PointCorrispondence::printPoints() {
 	cout << "[" << p1.x << "," << p1.y << "] <--> [" << p2.x << "," << p2.y << "]";
+}
+
+string PointCorrispondence::getScript(){
+	string script = "c";
+	stringstream n1, n2, x1, x2, y1, y2;
+
+	//qui si dovrebbero aggiungere gli indici della relativa immagine, ma dato che al momento funziona con solo due immagini...
+	n1 << 0;
+	n2 << 1;
+	x1 << p1.x;
+	x2 << p2.x;
+	y1 << p1.y;
+	y2 << p2.y;
+
+	script += " n" + n1.str() + " N" + n2.str() + " x" + x1.str() + " y" + y1.str() + " X" + x2.str() + " Y" + y2.str();
+	return script;
 }
 
 double PointCorrispondence::computeError(CvMat* fundamental_matrix) {
