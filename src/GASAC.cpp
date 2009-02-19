@@ -83,6 +83,7 @@ float GASAC::Objective(GAGenome& g)
 	// Metodo mediana
 	sort(values, values + instance->ncorrispondence);
 	float mediana = values[instance->ncorrispondence/2];
+	return mediana;
 	return 1.96*(1+5/(instance->ncorrispondence-1))*mediana;
 	//return values[instance->ncorrispondence/2];
 	/*
